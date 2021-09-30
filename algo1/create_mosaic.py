@@ -46,8 +46,10 @@ place_tile(random.randint(0,len(tiles)-1), 0, 0)
 
 # Iterate from top to bottom
 for i in range(mosaic_width_in_tiles):
-    # Iterate from left to right
+  # Iterate from left to right
   for j in range(mosaic_width_in_tiles):
+    if (i,j)==(0,0):
+      continue
     minimum_difference = float("inf")
     tile_index = -1
     # Consider all tiles
@@ -56,7 +58,7 @@ for i in range(mosaic_width_in_tiles):
         continue
         # Calculate difference in left neighbor, upper neighbor and upper-left neighbor
       difference = sum(get_rgb_difference(k, *x)
-                       for x in [(i-1, j), (i, j-1)])
+                       for x in [(i-1, j), (i, j-1), (i-1, j-1)])
       if difference < minimum_difference:
         minimum_difference = difference
         tile_index = k
