@@ -2,7 +2,7 @@
 
 Given a set of square image tiles of the same width, the desired output is a tiled photo mosaic such that each photo appears to blend into its neighbors (i.e. a color gradient).
 
-## Algorithm 1: Bottom-up picking of tiles with minimum difference in average RGB values**
+### Algorithm 1: Bottom-up picking of tiles with minimum difference in average RGB values
 - Calculate the average color of each tile
 - Calculate the difference in average colors betweeen each tile (sum of differences between R,G, and B values)
 - Pick a canvas size.
