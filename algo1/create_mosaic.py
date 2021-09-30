@@ -42,28 +42,35 @@ def place_tile(tile_index, x, y):
   used_tiles.add(tile_index)
 
 # Pick a random tile for the top left corner
-place_tile(random.randint(0,len(tiles)-1), 0, 0)
+place_tile(random.randint(0, len(tiles)-1), 0, 0)
 
-# Iterate from top to bottom
-for i in range(mosaic_width_in_tiles):
-  # Iterate from left to right
-  for j in range(mosaic_width_in_tiles):
-    if (i,j)==(0,0):
+# Diagonal indexing
+first_half = []
+second_half = []
+for l in range(mosaic_width_in_tiles):
+  for k in range(l+1):
+    first_half.append((k, l-k))
+    if l<mosaic_width_in_tiles-1:
+      second_half.append((mosaic_width_in_tiles-1-k,
+                         mosaic_width_in_tiles-1-(l-k)))
+
+for i, j in first_half+second_half[::-1]:
+  if (i, j) == (0, 0):
+    continue
+  minimum_difference = float("inf")
+  tile_index = -1
+  # Consider all tiles
+  for k in range(len(tiles)):
+    if k in used_tiles:
       continue
-    minimum_difference = float("inf")
-    tile_index = -1
-    # Consider all tiles
-    for k in range(len(tiles)):
-      if k in used_tiles:
-        continue
-        # Calculate difference in left neighbor, upper neighbor and upper-left neighbor
-      difference = sum(get_rgb_difference(k, *x)
-                       for x in [(i-1, j), (i, j-1), (i-1, j-1)])
-      if difference < minimum_difference:
-        minimum_difference = difference
-        tile_index = k
-    # Place tile
-    place_tile(tile_index, i, j)
+      # Calculate difference in left neighbor, upper neighbor and upper-left neighbor
+    difference = sum(get_rgb_difference(k, *x)
+                     for x in [(i-1, j), (i, j-1), (i-1, j-1)])
+    if difference < minimum_difference:
+      minimum_difference = difference
+      tile_index = k
+  # Place tile
+  place_tile(tile_index, i, j)
 
 # Finally, create mosaic
 mosaic = Image.new("RGB", (mosaic_width_in_pixels, mosaic_width_in_pixels))
