@@ -30,10 +30,11 @@ average_color_grid = get_empty_grid()
 used_tiles = set()
 
 # Helper to determine difference in RGB
-def get_rgb_difference(k, x, y):
-  if not all([z >= 0 and z < mosaic_width_in_tiles for z in [x, y]]):
+def get_rgb_difference(k, x1, y1, x2, y2):
+  if not all([z >= 0 and z < mosaic_width_in_tiles for z in [x2, y2]]):
     return 0
-  return sum([abs(average_color_list[k][i]-average_color_grid[x][y][i]) for i in [0, 1, 2]])
+  weight = 1/sqrt((x2-x1)**2+(y2-y1)**2)
+  return sum([abs(average_color_list[k][i]-average_color_grid[x2][y2][i]) for i in [0, 1, 2]])*weight
 
 # Helper to place tiles
 def place_tile(tile_index, x, y):
@@ -50,11 +51,12 @@ second_half = []
 for l in range(mosaic_width_in_tiles):
   for k in range(l+1):
     first_half.append((k, l-k))
-    if l<mosaic_width_in_tiles-1:
-      second_half.append((mosaic_width_in_tiles-1-k,
-                         mosaic_width_in_tiles-1-(l-k)))
+    if l < mosaic_width_in_tiles-1:
+      second_half.append((mosaic_width_in_tiles-1-(l-k),
+                         mosaic_width_in_tiles-1-k))
+indexes = first_half+second_half[::-1]
 
-for i, j in first_half+second_half[::-1]:
+for i, j in indexes:
   if (i, j) == (0, 0):
     continue
   minimum_difference = float("inf")
@@ -63,9 +65,9 @@ for i, j in first_half+second_half[::-1]:
   for k in range(len(tiles)):
     if k in used_tiles:
       continue
-      # Calculate difference in left neighbor, upper neighbor and upper-left neighbor
-    difference = sum(get_rgb_difference(k, *x)
-                     for x in [(i-1, j), (i, j-1), (i-1, j-1)])
+    # Calculate difference in nearest 3 neighbors
+    difference = sum(get_rgb_difference(k, i, j, *x)
+                     for x in [(i-1, j),  (i, j-1), (i-1, j-1)])
     if difference < minimum_difference:
       minimum_difference = difference
       tile_index = k
@@ -74,8 +76,6 @@ for i, j in first_half+second_half[::-1]:
 
 # Finally, create mosaic
 mosaic = Image.new("RGB", (mosaic_width_in_pixels, mosaic_width_in_pixels))
-for i in range(mosaic_width_in_tiles):
-  for j in range(mosaic_width_in_tiles):
-    if (tile_grid[i][j]):
-      mosaic.paste(tile_grid[i][j], (i*single_tile_width, j*single_tile_width))
-      mosaic.save("mosiac.png")
+for i, j in indexes:
+  mosaic.paste(tile_grid[i][j], (i*single_tile_width, j*single_tile_width))
+  mosaic.save("mosiac.png")
