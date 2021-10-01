@@ -62,17 +62,6 @@ def place_tile(tile_index, x, y):
   average_grid[x][y] = average_list[tile_index]
   used_tiles.add(tile_index)
 
-# Diagonal indexing
-first_half = []
-second_half = []
-for l in range(mosaic_width):
-  for k in range(l+1):
-    first_half.append((k, l-k))
-    if l < mosaic_width-1:
-      second_half.append((mosaic_width-1-(l-k),
-                         mosaic_width-1-k))
-indexes = first_half+second_half[::-1]
-
 mosaic_heap = []
 for t in range(len(tiles)):
   # Pick the starting tile (the seed)
@@ -80,33 +69,43 @@ for t in range(len(tiles)):
   average_grid = get_empty_grid()
   used_tiles = set()
   place_tile(t, 0, 0)
+  seen_coords = set()
+  queue = [(1, 0), (0, 1)]
 
-  # Populate the mosaic using a greedy approach
-  for i, j in indexes:
-    if (i, j) == (0, 0):
-      continue
+  # Populate the mosaic using a greedy approach, breadth-first
+  while queue:
+    i, j = queue.pop(0)
     minimum_difference = float("inf")
     tile_index = -1
 
     # Try to place every tile that hasn't been placed
     for k in [x for x in range(len(tiles)) if not x in used_tiles]:
-      # Sum RGB component difference with nearest 3 neighbors
+      # Sum RGB component difference with nearest neighbors
       difference = sum(get_rgb_delta_weighted(k, i, j, *x)
-                       for x in [(i-1, j),  (i, j-1), (i-1, j-1)])
+                       for x in [(i-1, j), (i, j-1), (i-1, j-1)])
       if difference < minimum_difference:
         minimum_difference = difference
         tile_index = k
     # Place the best tile
     place_tile(tile_index, i, j)
 
-  # Score this mosaic
-  heappush(mosaic_heap, (get_delta_sum(0, 0, tile_grid, set()), deepcopy(tile_grid)))
+    # Queue neighbors
+    for x, y in [(i+1, j), (i, j+1)]:
+      if is_valid_coordinate(x, y) and not (x, y) in seen_coords:
+        queue.append((x, y))
+        seen_coords.add((x, y))
 
-# Finally, output top 5 mosaics 
+  # Score this mosaic
+  heappush(mosaic_heap, (get_delta_sum(
+      0, 0, tile_grid, set()), deepcopy(tile_grid)))
+
+# Finally, output top 5 mosaics
 for k in range(10):
-  mosaic_grid = heappop(mosaic_heap)[1]
+  delta_sum, mosaic_grid = heappop(mosaic_heap)
+  print(f"Delta Sum for mosaic_{k}: {delta_sum}")
   mosaic = Image.new("RGB", (mosaic_width_px, mosaic_width_px))
-  for i, j in indexes:
-    mosaic.paste(mosaic_grid[i][j],
-                (i*single_tile_width, j*single_tile_width))
-    mosaic.save(f"mosaic_{k}.png")
+  for i in range(mosaic_width):
+    for j in range(mosaic_width):
+      mosaic.paste(mosaic_grid[i][j],
+                   (i*single_tile_width, j*single_tile_width))
+  mosaic.save(f"mosaic_{k}.png")
