@@ -5,11 +5,13 @@ Given a set of square image tiles of the same width, the desired output is a til
 ### Algorithm 1: Bottom-up picking of tiles with minimum difference in average RGB values
 
 - Calculate the average color of each tile
-- For each possible tile to place at (0,0)
-  - Iterate over each (blank) tile in the canvas by diagonals starting from top-right to bottom-left
-  - Place on the blank tile the image with the minimum sum of differences in average color from it's left, upper, and upper-left neighbors
-	- Rank the mosaic based on the sum of average color RGB differences between adjacent tiles
-- Output the 5 top ranking mosaics
+- For each possible seed tile
+  - Place the seed tile at (0,0)
+  - For each blank tile:
+        - Place the candidate tile with the minimum sum of RGB differences between it's left, upper, and upper-left neighbors
+   	- Rank the mosaic based on the sum of RGB differences between all pairs of adjacent tiles (sum weights in the graph)
+        - Insert mosaic into a heap
+- Output the top ten mosaics by popping from the heap
 
 #### Sample Algorithm 1 results:
 <p float="left">
