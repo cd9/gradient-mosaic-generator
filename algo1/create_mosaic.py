@@ -82,7 +82,7 @@ for t in range(len(tiles)):
     for k in [x for x in range(len(tiles)) if not x in used_tiles]:
       # Sum RGB component difference with nearest neighbors
       difference = sum(get_rgb_delta_weighted(k, i, j, *x)
-                       for x in [(i-1, j), (i, j-1), (i-1, j-1)])
+                       for x in [(i-1, j), (i, j-1), (i-1, j-1), (i-2, j), (i, j-2)])
       if difference < minimum_difference:
         minimum_difference = difference
         tile_index = k
