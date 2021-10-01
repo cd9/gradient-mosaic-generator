@@ -2,8 +2,10 @@ from glob import glob
 from PIL import Image
 from math import floor, sqrt
 from scipy import spatial
+from heapq import heappush, heappop
 import random
 import numpy
+from copy import deepcopy
 
 # Grab all tiles
 tile_paths = [x for x in glob("../tiles/*")]
@@ -11,71 +13,100 @@ tiles = [Image.open(x) for x in tile_paths]
 
 # Calculate mosaic size
 single_tile_width = tiles[0].size[0]
-mosaic_width_in_tiles = floor(sqrt(len(tiles)))
-mosaic_width_in_pixels = mosaic_width_in_tiles*single_tile_width
+mosaic_width = floor(sqrt(len(tiles)))
+mosaic_width_px = mosaic_width*single_tile_width
+
+# Create grid
+average_list = [numpy.array(x).mean(axis=0).mean(axis=0) for x in tiles]
+average_grid = None
+tile_grid = None
+used_tiles = None
 
 # Helper to make 2D grid
 def get_empty_grid():
-  return [[None] * mosaic_width_in_tiles
-          for j in range(mosaic_width_in_tiles)]
+  return [[None] * mosaic_width
+          for j in range(mosaic_width)]
 
-# Create empty grid
-tile_grid = get_empty_grid()
+# Helper to check if coordinate is in grid range
+def is_valid_coordinate(x, y):
+  return all([z >= 0 and z < mosaic_width for z in [x, y]])
 
-# Store average colors
-average_color_list = [numpy.array(x).mean(axis=0).mean(axis=0) for x in tiles]
-average_color_grid = get_empty_grid()
-
-# Save used tiles
-used_tiles = set()
-
-# Helper to determine difference in RGB
-def get_rgb_difference(k, x1, y1, x2, y2):
-  if not all([z >= 0 and z < mosaic_width_in_tiles for z in [x2, y2]]):
+# Helper to determine difference in RGB, without knowing index of first tile
+def get_rgb_delta_weighted(k, x1, y1, x2, y2):
+  if not is_valid_coordinate(x2, y2):
     return 0
   weight = 1/sqrt((x2-x1)**2+(y2-y1)**2)
-  return sum([abs(average_color_list[k][i]-average_color_grid[x2][y2][i]) for i in [0, 1, 2]])*weight
+  return get_rgb_delta(average_list[k], average_grid[x2][y2])*weight
+
+# Helper to determine difference in RGB
+def get_rgb_delta(color1, color2):
+  return sum([abs(color1[i]-color2[i]) for i in [0, 1, 2]])
+
+# Recursively add up the differences in between each adjacent tile
+def get_delta_sum(i, j, grid, seen):
+  if (i, j) in seen:
+    return 0
+  seen.add((i, j))
+  delta_sum = 0
+  if is_valid_coordinate(i+1, j):
+    delta_sum += get_rgb_delta(average_grid[i][j], average_grid[i+1]
+                               [j]) + get_delta_sum(i+1, j, grid, seen)
+  if is_valid_coordinate(i, j+1):
+    delta_sum += get_rgb_delta(average_grid[i][j], average_grid[i]
+                               [j+1]) + get_delta_sum(i, j+1, grid, seen)
+  return delta_sum
 
 # Helper to place tiles
 def place_tile(tile_index, x, y):
   tile_grid[x][y] = tiles[tile_index]
-  average_color_grid[x][y] = average_color_list[tile_index]
+  average_grid[x][y] = average_list[tile_index]
   used_tiles.add(tile_index)
-
-# Pick a random tile for the top left corner
-place_tile(random.randint(0, len(tiles)-1), 0, 0)
 
 # Diagonal indexing
 first_half = []
 second_half = []
-for l in range(mosaic_width_in_tiles):
+for l in range(mosaic_width):
   for k in range(l+1):
     first_half.append((k, l-k))
-    if l < mosaic_width_in_tiles-1:
-      second_half.append((mosaic_width_in_tiles-1-(l-k),
-                         mosaic_width_in_tiles-1-k))
+    if l < mosaic_width-1:
+      second_half.append((mosaic_width-1-(l-k),
+                         mosaic_width-1-k))
 indexes = first_half+second_half[::-1]
 
-for i, j in indexes:
-  if (i, j) == (0, 0):
-    continue
-  minimum_difference = float("inf")
-  tile_index = -1
-  # Consider all tiles
-  for k in range(len(tiles)):
-    if k in used_tiles:
-      continue
-    # Calculate difference in nearest 3 neighbors
-    difference = sum(get_rgb_difference(k, i, j, *x)
-                     for x in [(i-1, j),  (i, j-1), (i-1, j-1)])
-    if difference < minimum_difference:
-      minimum_difference = difference
-      tile_index = k
-  # Place tile
-  place_tile(tile_index, i, j)
+mosaic_heap = []
+for t in range(len(tiles)):
+  # Pick the starting tile (the seed)
+  tile_grid = get_empty_grid()
+  average_grid = get_empty_grid()
+  used_tiles = set()
+  place_tile(t, 0, 0)
 
-# Finally, create mosaic
-mosaic = Image.new("RGB", (mosaic_width_in_pixels, mosaic_width_in_pixels))
-for i, j in indexes:
-  mosaic.paste(tile_grid[i][j], (i*single_tile_width, j*single_tile_width))
-  mosaic.save("mosiac.png")
+  # Populate the mosaic using a greedy approach
+  for i, j in indexes:
+    if (i, j) == (0, 0):
+      continue
+    minimum_difference = float("inf")
+    tile_index = -1
+
+    # Try to place every tile that hasn't been placed
+    for k in [x for x in range(len(tiles)) if not x in used_tiles]:
+      # Sum RGB component difference with nearest 3 neighbors
+      difference = sum(get_rgb_delta_weighted(k, i, j, *x)
+                       for x in [(i-1, j),  (i, j-1), (i-1, j-1)])
+      if difference < minimum_difference:
+        minimum_difference = difference
+        tile_index = k
+    # Place the best tile
+    place_tile(tile_index, i, j)
+
+  # Score this mosaic
+  heappush(mosaic_heap, (get_delta_sum(0, 0, tile_grid, set()), deepcopy(tile_grid)))
+
+# Finally, output top 5 mosaics 
+for k in range(10):
+  mosaic_grid = heappop(mosaic_heap)[1]
+  mosaic = Image.new("RGB", (mosaic_width_px, mosaic_width_px))
+  for i, j in indexes:
+    mosaic.paste(mosaic_grid[i][j],
+                (i*single_tile_width, j*single_tile_width))
+    mosaic.save(f"mosaic_{k}.png")
