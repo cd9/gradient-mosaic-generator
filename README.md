@@ -14,8 +14,8 @@ Given a set of square image tiles of the same width, the desired output is a til
 
 #### Sample Algorithm 1 results:
 <p float="left">
-<img src="./algo1/mosaic_0.png" width=400/>
 <img src="./algo1/mosaic_3.png" width=400/>
+<img src="./algo1/mosaic_0.png" width=400/>
+<img src="./algo1/mosaic_1.png" width=400/>
 <img src="./algo1/mosaic_4.png" width=400/>
-<img src="./algo1/mosaic_7.png" width=400/>
 </p>
