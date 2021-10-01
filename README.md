@@ -1,5 +1,7 @@
 # Gradient Mosaic Generator
 
+### Problem
+
 Given a set of square image tiles of the same width, the desired output is a tiled photo mosaic such that each photo appears to blend into its neighbors (i.e. a color gradient).
 
 ### Algorithm 1: Breadth-First Greedy
