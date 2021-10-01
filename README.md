@@ -10,7 +10,7 @@ Given a set of square image tiles of the same width, the desired output is a til
   - For each blank tile:
     - Place the candidate tile with the minimum sum of RGB differences between it's left, upper, and upper-left neighbors
     - Rank the mosaic based on the sum of RGB differences between all pairs of adjacent tiles (sum weights in the graph)
-    - Insert mosaic into a heap
+  - Insert resulting mosaic into a heap
 - Output the top ten mosaics by popping from the heap
 
 #### Sample Algorithm 1 results:
