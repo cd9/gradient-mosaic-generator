@@ -99,7 +99,7 @@ for t in range(len(tiles)):
   heappush(mosaic_heap, (get_delta_sum(
       0, 0, tile_grid, set()), deepcopy(tile_grid)))
 
-# Finally, output top 5 mosaics
+# Finally, output top 10 mosaics
 for k in range(10):
   delta_sum, mosaic_grid = heappop(mosaic_heap)
   print(f"Delta Sum for mosaic_{k}: {delta_sum}")
@@ -108,4 +108,4 @@ for k in range(10):
     for j in range(mosaic_width):
       mosaic.paste(mosaic_grid[i][j],
                    (i*single_tile_width, j*single_tile_width))
-  mosaic.save(f"mosaic_{k}.png")
+  mosaic.save(f"mosaic_{k}_{int(delta_sum)}.png")
