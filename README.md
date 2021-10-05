@@ -34,7 +34,7 @@ Given a set of square image tiles of the same width, the desired output is a til
 - Calculate the sum of RGB differences between all pairs of adjacent tiles (sum weights in the graph)
   - Call this sum the `delta_sum`
 - While true:
-	- Swap two random tiles and update the `delta_sum` in (constant time)
+	- Swap two random tiles and update the `delta_sum` (done in constant time)
 	- If the new `delta_sum` is lower than the old `delta_sum`, continue the loop (save the changes)
 	- Else, reverse the changes by swapping again
 	- If `TIMEOUT` iterations have passed without a successful swap, exit the loop
