@@ -21,13 +21,18 @@ Given a set of square image tiles of the same width, the desired output is a til
 	- Place the candidate tile with the minimum sum of RGB differences between it's nearest neighbors
 - Rank the mosaic based on the sum of RGB differences between all pairs of adjacent tiles (sum weights in the graph)
 
-#### Sample Algorithm 1 results:
+#### Sample Algorithm 1 results
 <p float="left">
 <img src="./algo1/mosaic_3_8131.png" width=400/>
 <img src="./algo1/mosaic_0_7898.png" width=400/>
 <img src="./algo1/mosaic_1_7936.png" width=400/>
 <img src="./algo1/mosaic_4_8272.png" width=400/>
 </p>
+
+#### Algorithm 1 Observations
+- The greedy approach of picking the closest-matching tile has a two-fold effect:
+  - Locally, it naturally makes the current tile blend into its neighbors.
+  - Globally, tiles are gradually filtered out of selection as they are chosen, effectively sorting them into color groups over time.
 
 ### Algorithm 2: Random Swap
 - Start with a random configuration of tiles on a canvas
@@ -39,10 +44,16 @@ Given a set of square image tiles of the same width, the desired output is a til
 	- Else, reverse the changes by swapping again
 	- If `TIMEOUT` iterations have passed without a successful swap, exit the loop
 
-#### Sample Algorithm 2 results:
+#### Sample Algorithm 2 results
 <p float="left">
 <img src="./algo2/mosaic_3108.png" width=400/>
 <img src="./algo2/mosaic_3178.png" width=400/>
 <img src="./algo2/mosaic_3622.png" width=400/>
 <img src="./algo2/mosaic_3650.png" width=400/>
 </p>
+
+#### Algorithm 2 Observations
+- This algorithm doesn't "sort" tiles as effectively as algorithm 1.
+  - Some mosaics have multiple "clusters" of colors since there is sometimes no advantage to grouping them together.
+- Very dense clusters of solid colors with very sometimes little "feathering" into other clusters.
+- Only swapping two tiles at once severely limits the flexibility of the mosaic. For example, a piecewise shift of an entire row to the left by one tile may result in a final lower `delta_sum`, but would never be performed by the algorithm as long as an individual swap increases the `delta_sum`. (Note that adding multiple-step transformations would severely increase the complexity of the algorithm)
