@@ -1,6 +1,16 @@
 # Gradient Mosaic Generator
 
-### Problem
+### Motivation
+
+Once upon a time, a group of around ~40 square, ceramic album art coasters were crafted as part of a weekend arts-and-crafts project. After all the coasters had been properly assembled, glued, and dried, they were laid out on a coffee table for aesthetics and for an obligatory *à la mode* photoshoot. It was soon realized that tiling the coasters randomly on the coffee table resulted in suboptimal aesthetics. *Was there a better way to lay the coasters out on the table?* 
+
+Having endured frightening amounts of exposure to leetcode problems, my brain reactively, and against my free will, context-switched into a state of problem-solving automation. It was agreed upon that the most optimal tile layout would be one such that each tile appears to blend into the next. 
+
+In simple terms, an ideal layout would most closely approximate a gradient. This definition can have several different interpretations, each with their own specification of what entails an *optimal* mosaic. 
+
+Since encountering this larger-than-life problem, I haven't been able to kick the urge to try and code up some of the proposed solutions. This repository contains a few different algorithms and approaches on how to generate an optimal "gradient mosaic".
+
+### The Problem
 
 Given a set of square image tiles of the same width, the desired output is a tiled photo mosaic such that each photo appears to blend into its neighbors (i.e. a color gradient).
 
