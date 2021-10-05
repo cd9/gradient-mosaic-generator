@@ -2,7 +2,7 @@
 
 ### Motivation
 
-Once upon a time, a group of around ~40 square, ceramic album art coasters were crafted as part of a weekend arts-and-crafts project. After all the coasters had been properly assembled, glued, and dried, they were laid out on a coffee table for aesthetics and for an obligatory *à la mode* photoshoot. It was soon realized that tiling the coasters randomly on the coffee table resulted in suboptimal aesthetics. *Was there a better way to lay the coasters out on the table?* 
+Once upon a time, a group of around ~40 square, ceramic album art coasters were crafted as part of a weekend arts-and-crafts project. After all the coasters had been properly assembled, glued, and dried, they were laid out on a coffee table in a contemporary living room both for the aesthetics of the moment and for an obligatory *à la mode* photoshoot. It was soon realized that tiling the coasters randomly on the coffee table resulted in suboptimal aesthetics. *Was there a better way to lay the coasters out on the table?* 
 
 Having endured frightening amounts of exposure to leetcode problems, my brain reactively, and against my free will, context-switched into a state of problem-solving automation. It was agreed upon that the most optimal tile layout would be one such that each tile appears to blend into the next. 
 
