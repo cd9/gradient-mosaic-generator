@@ -23,10 +23,10 @@ Given a set of square image tiles of the same width, the desired output is a til
 
 #### Sample Algorithm 1 results
 <p float="left">
-<img src="./algo1/mosaic_3_8131.png" width=400/>
-<img src="./algo1/mosaic_0_7898.png" width=400/>
-<img src="./algo1/mosaic_1_7936.png" width=400/>
-<img src="./algo1/mosaic_4_8272.png" width=400/>
+<img src="./output/algo1/mosaic_3_8131.png" width=400/>
+<img src="./output/algo1/mosaic_0_7898.png" width=400/>
+<img src="./output/algo1/mosaic_1_7936.png" width=400/>
+<img src="./output/algo1/mosaic_4_8272.png" width=400/>
 </p>
 
 #### Algorithm 1 Observations
@@ -46,11 +46,14 @@ Given a set of square image tiles of the same width, the desired output is a til
 
 #### Sample Algorithm 2 results
 <p float="left">
-<img src="./algo2/mosaic_3108.png" width=400/>
-<img src="./algo2/mosaic_3178.png" width=400/>
-<img src="./algo2/mosaic_3622.png" width=400/>
-<img src="./algo2/mosaic_3650.png" width=400/>
+<img src="./output/algo2/mosaic_3108.png" width=400/>
+<img src="./output/algo2/mosaic_3178.png" width=400/>
+<img src="./output/algo2/mosaic_3622.png" width=400/>
+<img src="./output/algo2/mosaic_3650.png" width=400/>
 </p>
+
+#### Algorithm 2 Visualization
+<img src="./output/algo2/animation.gif" width=400/>
 
 #### Algorithm 2 Observations
 - This algorithm doesn't "sort" tiles as effectively as algorithm 1.
