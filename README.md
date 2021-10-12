@@ -25,8 +25,6 @@ Given a set of square image tiles of the same width, the desired output is a til
 <p float="left">
 <img src="./output/algo1/mosaic_3_8131.png" width=400/>
 <img src="./output/algo1/mosaic_0_7898.png" width=400/>
-<img src="./output/algo1/mosaic_1_7936.png" width=400/>
-<img src="./output/algo1/mosaic_4_8272.png" width=400/>
 </p>
 
 #### Algorithm 1 Observations
@@ -34,20 +32,18 @@ Given a set of square image tiles of the same width, the desired output is a til
   - Locally, it naturally makes the current tile blend into its neighbors.
   - Globally, tiles are gradually filtered out of selection as they are chosen, effectively sorting them into color groups over time.
 
-### Algorithm 2: Random Swap
+### Algorithm 2: Random Swaps
 - Start with a random configuration of tiles on a canvas
 - Calculate the sum of RGB differences between all pairs of adjacent tiles (sum weights in the graph)
   - Call this sum the `delta_sum`
-- While true:
-	- Swap two random tiles and update the `delta_sum` (done in constant time)
-	- If the new `delta_sum` is lower than the old `delta_sum`, continue the loop (save the changes)
+- For every possible swap, chosen in random order without replacement
+	- Swap two tiles and update the `delta_sum` (done in constant time)
+	- If the new `delta_sum` is lower than the old `delta_sum`, reset the list of all possible swaps
 	- Else, reverse the changes by swapping again
-	- If `TIMEOUT` iterations have passed without a successful swap, exit the loop
+	- Exit when all possible swaps have been attempted
 
 #### Sample Algorithm 2 results
 <p float="left">
-<img src="./output/algo2/mosaic_3108.png" width=400/>
-<img src="./output/algo2/mosaic_3178.png" width=400/>
 <img src="./output/algo2/mosaic_3622.png" width=400/>
 <img src="./output/algo2/mosaic_3650.png" width=400/>
 </p>
@@ -60,3 +56,16 @@ Given a set of square image tiles of the same width, the desired output is a til
   - Some mosaics have multiple "clusters" of colors since there is sometimes no advantage to grouping them together.
 - Very dense clusters of solid colors with very sometimes little "feathering" into other clusters.
 - Only swapping two tiles at once severely limits the flexibility of the mosaic. For example, a piecewise shift of an entire row to the left by one tile may result in a final lower `delta_sum`, but would never be performed by the algorithm as long as an individual swap increases the `delta_sum`. (Note that adding multiple-step transformations would severely increase the complexity of the algorithm)
+
+### Algorithm 3: Breadth First + Random Swaps
+- Algorithm 2, but instead of starting with random mosaics, start with with results from algorithm 1
+
+#### Sample Algorithm 3 results
+<p float="left">
+<img src="./output/algo3/mosaic_6731.png" width=400/>
+<img src="./output/algo3/mosaic_6173.png" width=400/>
+</p>
+
+#### Algorithm 3 Observations
+- Similar results to algorithm 1, just with less 'mistakes' (as expected).
+- Starting with a greedy-generated canvas usually prevents the algorithm from splitting colors into multiple clusters.

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from glob import glob
 from PIL import Image
 from math import floor, sqrt
@@ -7,8 +9,7 @@ import numpy
 from copy import deepcopy
 from helpers import get_delta_sum, get_empty_grid, get_rgb_delta, is_valid_coordinate
 
-TIMEOUT = 50000
-MOSAICS_TO_GENERATE = 10
+MOSAICS_TO_GENERATE = 20
 
 # Grab all tiles
 tile_paths = [x for x in glob("./tiles/*")]
@@ -22,23 +23,20 @@ mosaic_width_px = mosaic_width*single_tile_width
 # Create grid
 average_list = [numpy.array(x).mean(axis=0).mean(axis=0) for x in tiles]
 tile_grid = get_empty_grid(mosaic_width)
-all_coordinates = set()
+all_coordinates = []
 for i in range(mosaic_width):
 	for j in range(mosaic_width):
-		all_coordinates.add((i,j))
+		all_coordinates.append((i,j))
+all_swaps = []
+for i, c1 in enumerate(all_coordinates):
+	for c2 in all_coordinates[i+1:]:
+		all_swaps.append((c1,c2))
 
-def get_neighbor_coordinates(x, y):
-	neighbors = [(x+1,y),(x,y+1),(x+1,y+1),(x-1,y-1),(x+1,y-1),(x-1,y+1),(x-1,y),(x,y-1)]
-	return [n for n in neighbors if is_valid_coordinate(*n, mosaic_width)]
-
-def get_random_coordinate(exclude):
-	return random.sample(all_coordinates.difference(exclude), 1)[0]
-
+# Helper to swap two tiles and update `delta_sum` in constant time
 def perform_swap(delta_sum, c1, c2):
 	new_delta_sum = delta_sum
 	for a, b in [(c1, c2), (c2, c1)]:
 		for e in [(a[0]+1, a[1]), (a[0]-1, a[1]), (a[0], a[1]+1), (a[0], a[1]-1)]:
-			# Ignore adjacent edge if tiles are adjacent
 			if is_valid_coordinate(*e, mosaic_width) and all(sorted(e) != sorted(x) for x in [a, b]):
 				# Remove the original edge deltas
 				new_delta_sum -= get_rgb_delta(
@@ -64,19 +62,16 @@ for i in range(MOSAICS_TO_GENERATE):
 
 	# Initial delta sum
 	delta_sum = get_delta_sum(0, 0, tile_grid, set(), average_list)
-	while True:
-		x = get_random_coordinate(set())
-		y = get_random_coordinate(set(x))
-		swap = (x,y)
+	swaps_to_try = deepcopy(all_swaps)
+	while len(swaps_to_try) > 0:
+		swap = random.choice(swaps_to_try)
+		swaps_to_try.remove(swap)
 		old_delta_sum = delta_sum
 		delta_sum = perform_swap(delta_sum, *swap)
 		if int(delta_sum) < int(old_delta_sum):
-			timeout = 0
+			swaps_to_try = deepcopy(all_swaps)
 		else:
 			delta_sum = perform_swap(delta_sum, *swap)
-			timeout += 1
-			if timeout >= TIMEOUT:
-				break
 	# Score this mosaic
 	heappush(mosaic_heap, (delta_sum, deepcopy(tile_grid)))
 	print(f"Mosaic {i+1}/{MOSAICS_TO_GENERATE} complete with delta sum {delta_sum}")
